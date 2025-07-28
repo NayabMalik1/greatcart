@@ -1,31 +1,32 @@
-# Pagination Feature
+#  Search Feature
 
-This branch adds pagination to the product listing in the `store` view of our Django project.
+This branch adds a basic search functionality to the store page.
 
-## 🔧 What’s Implemented
+##  What’s Implemented
 
-- Django’s `Paginator` class is used to paginate products.
-- Pagination logic is included in the `store()` view.
-- HTML pagination controls are added in `store.html`.
+- A search bar is added to the navbar or sidebar.
+- Users can search products by name or description.
+- Results appear on the same product listing page.
 
-## Usage
+##  Usage
 
-### 1. View URL:
-Visit: `http://127.0.0.1:8000/store/`
+### 1. Search URL:
+Visit: `http://127.0.0.1:8000/store/search/?keyword=shoes`
 
 ### 2. Features:
-- Displays limited products per page (configured in `Paginator(products, 3)`).
-- Users can navigate using Next/Previous links.
+- Searches through `product_name` and `description` fields.
+- Case-insensitive and partial matches supported.
+- Rendered in the same `store.html` template.
 
-## Files Modified
+##  Files Modified
 
-- `store/views.py`  
-- `store/store.html`  
-- `urls.py` (indirectly supports pagination via GET param `?page=`)
+- `store/views.py` (added `search()` view)
+- `store/store.html` (added form and logic)
+- `urls.py` (added search path)
 
-## 🔗 Example URLs
+##  Example
 
-- Page 1: `/store/?page=1`
-- Page 2: `/store/?page=2`
+URL: `/store/search/?keyword=hoodie`  
+Returns: All products with “hoodie” in the name or description.
 
 ---
