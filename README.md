@@ -1,4 +1,4 @@
-# 🧭 Pagination Feature
+# Pagination Feature
 
 This branch adds pagination to the product listing in the `store` view of our Django project.
 
@@ -8,7 +8,7 @@ This branch adds pagination to the product listing in the `store` view of our Dj
 - Pagination logic is included in the `store()` view.
 - HTML pagination controls are added in `store.html`.
 
-## 🖥️ Usage
+## Usage
 
 ### 1. View URL:
 Visit: `http://127.0.0.1:8000/store/`
@@ -17,7 +17,7 @@ Visit: `http://127.0.0.1:8000/store/`
 - Displays limited products per page (configured in `Paginator(products, 3)`).
 - Users can navigate using Next/Previous links.
 
-## ✅ Files Modified
+## Files Modified
 
 - `store/views.py`  
 - `store/store.html`  
