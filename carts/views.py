@@ -22,8 +22,13 @@ def _cart_id(request):
 
 
 
-
 def add_cart(request, product_id):
+    color = request.GET.get('Color')
+    size = request.GET.get('Size')
+
+    if not color or not size:
+        return HttpResponse("Color or Size not provided")
+
     product = Product.objects.get(id=product_id)
 
     try:
@@ -32,34 +37,54 @@ def add_cart(request, product_id):
         cart = Cart.objects.create(cart_id=_cart_id(request))
         cart.save()
 
+    # ✅ Check if same variation already exists in cart
     try:
-        cart_item = CartItem.objects.get(product=product, cart=cart)
+        cart_item = CartItem.objects.get(product=product, cart=cart, color=color, size=size)
         cart_item.quantity += 1
-        cart_item.save()  # ✅ Save the updated quantity
+        cart_item.save()
     except CartItem.DoesNotExist:
         cart_item = CartItem.objects.create(
             product=product,
             quantity=1,
             cart=cart,
+            color=color,
+            size=size,
         )
         cart_item.save()
-    
-    return redirect('cart')  # ✅ Redirect properly
+
+    return redirect('cart')
+
+
 
 
 def remove_cart(request, product_id):
     cart = Cart.objects.get(cart_id=_cart_id(request))
     product = get_object_or_404(Product, id=product_id)
+
+    # Get selected color and size (if available)
+    color = request.GET.get('Color')
+    size = request.GET.get('Size')
+
     try:
-        cart_item = CartItem.objects.get(product=product, cart=cart)
-        if cart_item.quantity > 1:
-            cart_item.quantity -= 1
-            cart_item.save()
-        else:
-            cart_item.delete()
-    except CartItem.DoesNotExist:
+        cart_item = CartItem.objects.filter(
+            product=product,
+            cart=cart,
+            color=color,
+            size=size,
+        ).first()  # instead of .get()
+
+        if cart_item:
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+                cart_item.save()
+            else:
+                cart_item.delete()
+
+    except:
         pass
+
     return redirect('cart')
+
 
 
 def remove_cart_item(request, product_id):
