@@ -57,7 +57,11 @@ $(document).ready(function() {
     
 }); 
 // jquery end
-setTimeout(function() {
-    $('#message').fadeOut('slow');
-}, 5000); // auto fade out message after 5 seconds
+$(document).ready(function() {
+  // Auto fade out all messages after 5 seconds
+  setTimeout(function() {
+    $('.message').fadeOut('slow');
+  }, 5000);
+});
+
 
