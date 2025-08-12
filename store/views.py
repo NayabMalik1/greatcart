@@ -1,0 +1,77 @@
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+
+from carts.models import Cart, CartItem
+from carts.views import _cart_id
+from .models import Product
+from category.models import category 
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+ # lowercase model name as you used
+
+
+def store(request, category_slug=None):
+    categories = None
+    products = None
+
+    if category_slug is not None:
+        categories = get_object_or_404(category, slug=category_slug)  
+        products = Product.objects.filter(category=categories, is_available=True)
+        paginator=Paginator(products, 1)
+        page=request.GET.get('page')
+        paged_products=paginator.get_page(page)
+        product_count = products.count()
+    else:
+        products = Product.objects.filter(is_available=True)
+        paginator=Paginator(products, 3)
+        page=request.GET.get('page')
+        paged_products=paginator.get_page(page)
+        product_count = products.count()
+
+    context = {
+        'products':  paged_products,
+        'product_count': product_count,
+    }
+
+    return render(request, 'store/store.html', context)
+
+
+def product_detail(request, category_slug, product_slug):
+    try:
+        single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        in_cart_items = CartItem.objects.filter(product=single_product, cart=cart)
+    except Cart.DoesNotExist:
+        in_cart_items = []
+
+    context = {
+        'single_product': single_product,
+        'in_cart_items': in_cart_items,
+    }
+    return render(request, 'store/product_detail.html', context)
+
+
+
+
+
+from django.db.models import Q
+from .models import Product
+
+def search(request):
+    keyword = request.GET.get('keyword')
+    products = []
+    product_count = 0
+
+    if keyword:
+        products = Product.objects.filter(
+            Q(product_name__icontains=keyword) | Q(description__icontains=keyword),
+            is_available=True
+        )
+        product_count = products.count()
+
+    context = {
+        'products': products,
+        'product_count': product_count,
+    }
+
+    return render(request, 'store/store.html', context)
+
