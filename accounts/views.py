@@ -14,6 +14,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator  
+from carts.views import _cart_id
+from carts .models import Cart, CartItem
 
 
   
@@ -63,19 +65,50 @@ def register(request):
       form= RegistrationForm()
     context = {'form': form}
     return render(request, 'accounts/register.html', context)
+
+
 # Create your views here.
 def login(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
         user = auth.authenticate(request, username=email, password=password)
+
         if user is not None:
+            try:
+                cart = Cart.objects.get(cart_id=_cart_id(request))
+                guest_cart_items = CartItem.objects.filter(cart=cart)
+
+                if guest_cart_items.exists():
+                    for item in guest_cart_items:
+                        # Check if the same product with same variations exists for the logged in user
+                        existing_item = CartItem.objects.filter(
+                            user=user,
+                            product=item.product,
+                            color=item.color,
+                            size=item.size
+                        ).first()
+
+                        if existing_item:
+                            existing_item.quantity += item.quantity
+                            existing_item.save()
+                            item.delete()  # Remove guest cart duplicate
+                        else:
+                            item.user = user
+                            item.cart = None  # Remove guest cart link
+                            item.save()
+
+            except Cart.DoesNotExist:
+                pass
+
             auth_login(request, user)
             messages.success(request, 'Login successful')
-            return redirect('dashboard')
+            return redirect('checkout')  # go to checkout to see items after login
         else:
             messages.error(request, 'Invalid credentials')
+    
     return render(request, 'accounts/login.html')
+
 
 @login_required(login_url='login')
 def logout(request):

@@ -1,33 +1,31 @@
+# Cart & Checkout Auth Sync
 
-# Forget & Reset Password Feature
+## Overview
+This branch implements a complete set of improvements for the cart and checkout system, focusing on seamless user experience for both guest and authenticated users.
 
-This feature allows users to reset their account password via email securely.
+## Features
+1. **Checkout Page Design**
+   - Responsive, centered layout.
+   - Product list with variations (color, size), quantity, and price.
+   - Billing address form with validation.
+   - Order notes support.
 
-## **Features**
+2. **Assign User to Cart Items on Login**
+   - On login, any existing guest cart items are merged and assigned to the authenticated user.
+   - Prevents cart reset after login.
 
-* Forgot Password page where users enter their registered email.
-* Sends a secure password reset link to the user's email.
-* Link contains a token for authentication.
-* Reset Password page to enter and confirm a new password.
-* Uses Django's built-in `default_token_generator` for security.
+3. **Update Cart Counter for Logged-in Users**
+   - Real-time cart counter updates after login or cart actions.
+   - Shared logic for both guest and authenticated users.
 
-## **Flow**
+4. **Variation Grouping for Logged-in Users**
+   - Ensures cart items are grouped correctly by product, color, and size for logged-in users.
+   - Prevents duplicate rows in the cart.
 
-1. **User clicks "Forgot Password"** on the login page.
-2. Enters their registered email address.
-3. Email is sent containing a password reset link:
+## How It Works
+- Guest users create a session cart (`cart_id`).
+- On login, guest cart items are merged with the authenticated user's cart items.
+- All cart-related queries for authenticated users use `user=request.user` to ensure data consistency.
+- Checkout page fetches cart items based on authentication state and displays all relevant details.
 
-   ```
-   https://yourdomain.com/reset/<uidb64>/<token>/
-   ```
-4. User clicks the link, which opens the **Reset Password** form.
-5. User enters and confirms a new password.
-6. Password is updated and user can log in with the new credentials.
-
-## **Tech Used**
-
-* **Django**
-* `django.contrib.auth.tokens.default_token_generator`
-* Django's `urlsafe_base64_encode` and `urlsafe_base64_decode`
-* SMTP Email backend for sending reset emails
 
