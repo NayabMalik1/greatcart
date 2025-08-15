@@ -16,6 +16,7 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator  
 from carts.views import _cart_id
 from carts .models import Cart, CartItem
+import requests 
 
 
   
@@ -28,10 +29,11 @@ def register(request):
             last_name = form.cleaned_data['last_name']
             phone_number = form.cleaned_data['phone_number']
             email = form.cleaned_data['email']
-            username=email.split('@')[0],
+            username = email.split('@')[0]  # Removed extra comma
             password = form.cleaned_data['password']
             
-            user=Account.objects.create_user(
+            # Create user
+            user = Account.objects.create_user(
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
@@ -40,7 +42,8 @@ def register(request):
             )
             user.phone_number = phone_number
             user.save()
-              # user activation 
+
+            # Send activation email
             current_site = get_current_site(request)
             mail_subject = 'Please activate your account'
             message = render_to_string('accounts/account_verification_email.html', {
@@ -49,22 +52,32 @@ def register(request):
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': default_token_generator.make_token(user),
             })
-            to_email=email
-            send_email = EmailMessage(
-                mail_subject, message, to=[to_email]
-            )
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
             send_email.send()
+
             messages.success(request, 'Registration successful')
+
+            # Redirect back to the referring page
+            url = request.META.get('HTTP_REFERER')  # ✅ Corrected to request.META
+            try:
+                query = requests.utils.urlparse(url).query
+                params=dict(x.split('=') for x in query.split('&'))
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+                print('Query:', query)
+            except Exception as e:
+                print("Error parsing URL:", e)
+
             return redirect('register')
 
-            # user activation 
-            current_site = get_current_site(request)
-            # Optionally, you can log the user in after registration
-            # Redirect or do something after successful registration
     else:
-      form= RegistrationForm()
+        form = RegistrationForm()
+
     context = {'form': form}
     return render(request, 'accounts/register.html', context)
+
 
 
 # Create your views here.
