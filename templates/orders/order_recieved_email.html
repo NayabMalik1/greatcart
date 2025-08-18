@@ -1,0 +1,9 @@
+{% autoescape on  %}
+Hi {{ user.first_name }},
+
+Thank you for your order! Your order number is {{ order.order_number }}.
+Please find the details of your order below:
+Order Number: {{ order.order_number }}<br>
+Order Date: {{ order.created_at|date:"Y-m-d H:i" }}<br>
+
+{% endautoescape %}

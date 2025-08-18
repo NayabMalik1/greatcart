@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="section-conten padding-y bg">
+{% include 'includes/alerts.html' %}
+<div class="container">
+	<div class="row">
+	    
+	    <!-- Sidebar (Left) -->
+	    <div class="col-md-3">
+	        {% include 'accounts/dashboard_sidebar.html' %}
+	    </div>
+
+	    <!-- Main Content (Center) -->
+		<main class="col-md-8">
+			<article class="card mb-4 shadow-sm">
+				<header class="card-header bg-primary text-white">
+					<strong>Your Order History </strong>
+				</header>
+				<div class="card-body">
+					<div class="row">	
+					<div class="col-md-12">
+						<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Order #</th>
+      <th scope="col">Billing name</th>
+      <th scope="col">Phone</th>
+      <th scope="col">Order Total</th>
+	  <th scope="col">Order Date</th>
+    </tr>
+  </thead>
+  <tbody>
+	{% for order in orders %}
+    <tr>
+      <th scope="row">
+    <a href="{% url 'order_complete' order.order_number %}">
+        {{ order.order_number }}
+    </a>
+</th>
+
+      <td>{{order.full_name}}</td>
+      <td>{{order.phone}}</td>
+      <td>Rs. {{order.order_total}}</td>
+	  <td>{{order.created_at}}</td>
+    </tr>
+	{% endfor %}
+    
+   
+  </tbody>
+</table>
+							
+
+					</div>
+				</div>
+			</article>
+		</main>
+
+		<!-- User Info (Right Column) -->
+		
+
+	</div>
+</div>
+</section>
+
+{% endblock %}

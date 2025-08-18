@@ -1,0 +1,40 @@
+.rate > input {
+    display: none;
+}
+
+.rate {
+    display: inline-block;
+    border: 0;
+}
+
+.rate > label {
+    float: right;
+    cursor: pointer;
+}
+
+.rate > label:before {
+    display: inline-block;
+    font-size: 1.5rem;
+    font-family: FontAwesome;
+    content: "\f005"; /* Full Star */
+    margin: 0;
+    padding: 0.3rem 0.2rem;
+}
+
+.rate .half:before {
+    content: "\f089"; /* Half Star */
+    position: absolute;
+    padding-right: 0;
+}
+
+input:checked ~ label,
+label:hover,
+label:hover ~ label {
+    color: #f90; /* Yellow on hover/checked */
+}
+
+input:checked + label:hover,
+input:checked + label:hover ~ label,
+label:hover ~ input:checked ~ label {
+    color: #fc0; /* Brighter Yellow */
+}

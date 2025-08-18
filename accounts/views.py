@@ -17,7 +17,9 @@ from django.contrib.auth.tokens import default_token_generator
 from carts.views import _cart_id
 from carts .models import Cart, CartItem
 import requests 
+from orders.models import OrderProduct
 
+from orders.models import Order
 
   
 
@@ -149,8 +151,16 @@ def activate(request, uidb64, token):
 
 @login_required(login_url='login')
 def dashboard(request):
+
     if request.user.is_authenticated:
-        return render(request, 'accounts/dashboard.html')
+        orders= OrderProduct.objects.order_by('-created_at').filter(user_id=request.user.id, ordered=True)
+        order_count = orders.count()
+        context = {
+            'order_count': order_count,
+            'orders': orders,
+        }
+        return render(request, 'accounts/dashboard.html', context)
+        
     else:
         messages.error(request, 'You need to login to access the dashboard.')
         return redirect('login')
@@ -215,3 +225,24 @@ def resetPassword(request):
             return redirect('resetPassword')
     else:
         return render(request, 'accounts/resetPassword.html')
+
+def my_orders(request):
+    orders=Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'accounts/my_orders.html', context)
+
+def order_detail(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user, is_ordered=True)
+        order_products = OrderProduct.objects.filter(order=order)
+    except Order.DoesNotExist:
+        messages.error(request, 'Order not found.')
+        return redirect('my_orders')
+
+    context = {
+        'order': order,
+        'order_products': order_products,
+    }
+    return render(request, 'accounts/order_detail.html', context)
